@@ -16,3 +16,7 @@ Cargo.lock
 # IntellJ project files
 .idea
 Advent-Of-Code-2021.iml
+
+# Added by cargo
+
+/target
