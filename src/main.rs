@@ -1,5 +1,7 @@
-mod day1; // I'm going to miss scripting. This really doesn't seem set up for AoC-style challenges.
+#![allow(unused_imports, unreachable_code, dead_code)]
+
+mod day01; // I'm going to miss scripting. This really doesn't seem set up for AoC-style challenges.
 
 fn main() {
-    day1::do_challenge_or_whatever();
+    day01::challenge_01_1();
 }
