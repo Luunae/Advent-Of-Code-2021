@@ -20,3 +20,7 @@ Advent-Of-Code-2021.iml
 # Added by cargo
 
 /target
+
+
+# Personal input files
+/inputs
