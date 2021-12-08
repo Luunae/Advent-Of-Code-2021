@@ -1,14 +1,12 @@
 // Fuck it, big file time.
 #![allow(unreachable_code, dead_code, clippy::needless_return)]
 
-const CONTENTS: &str = include_str!("../inputs/input01-1.txt");
-
 fn main() {
     challenge_01_2();
 }
 
-fn get_input() -> Vec<&'static str> {
-    let list: Vec<&str> = CONTENTS.trim().split('\n').collect();
+fn get_input(file: &str) -> Vec<&str> {
+    let list: Vec<&str> = file.trim().split('\n').collect();
     return list;
 }
 
@@ -17,11 +15,12 @@ fn convert_vec_of_str_to_vec_of_int(str_list: Vec<&str>) -> Vec<i64> {
     for element in str_list {
         int_list.push(element.trim().parse().expect("not a valid number"))
     }
-    return int_list
+    return int_list;
 }
 
-pub fn challenge_01_1() {
-    let list:Vec<i64> = convert_vec_of_str_to_vec_of_int(get_input());
+fn challenge_01_1() {
+    let list: Vec<i64> =
+        convert_vec_of_str_to_vec_of_int(get_input(include_str!("../inputs/01.txt")));
     let mut increases: usize = 0;
     for index in 0..list.len() - 1 {
         if list[index] < list[index + 1] {
@@ -31,8 +30,8 @@ pub fn challenge_01_1() {
     print!("{}", increases)
 }
 
-pub fn challenge_01_2() {
-    let list = convert_vec_of_str_to_vec_of_int(get_input());
+fn challenge_01_2() {
+    let list = convert_vec_of_str_to_vec_of_int(get_input(include_str!("../inputs/01.txt")));
     let mut increases: usize = 0;
     for index in 0..list.len() - 1 {
         if index == list.len() - 3 {
