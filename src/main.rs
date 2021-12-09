@@ -9,6 +9,7 @@ type Coordinate = i64;
 
 #[derive(Clone, Copy)]
 struct Location {
+    aim: Option<Coordinate>,
     x: Coordinate,
     y: Coordinate,
 }
@@ -16,17 +17,15 @@ struct Location {
 #[derive(Debug, PartialEq, EnumString)]
 enum Direction {
     #[strum(ascii_case_insensitive)]
-    Up,
-    #[strum(ascii_case_insensitive)]
     Down,
     #[strum(ascii_case_insensitive)]
-    Forward,
+    Up,
     #[strum(ascii_case_insensitive)]
-    Backward,
+    Forward,
 }
 
 fn main() {
-    challenge_02_1();
+    challenge_02_2();
 }
 
 fn get_input(file: &str) -> Vec<&str> {
@@ -49,14 +48,25 @@ fn submarine_navigate(mut position: Location, movement: &str) -> Location {
         .expect("Should have enough entries");
     let magnitude: u32 = magnitude.parse().expect("Should be a valid number");
     let magnitude = magnitude as Coordinate;
-
     let direction: Direction = Direction::from_str(direction).expect("Valid Direction?");
-    match direction {
-        Direction::Up => position.y -= magnitude,
-        Direction::Down => position.y += magnitude,
-        Direction::Forward => position.x += magnitude,
-        Direction::Backward => position.x -= magnitude,
-    };
+
+    if let Some(mut current_aim) = position.aim {
+        match direction {
+            Direction::Down => current_aim += magnitude,
+            Direction::Up => current_aim -= magnitude,
+            Direction::Forward => {
+                position.x += magnitude;
+                position.y += current_aim * magnitude;
+            }
+        }
+        position.aim = Some(current_aim)
+    } else {
+        match direction {
+            Direction::Down => position.y += magnitude,
+            Direction::Up => position.y -= magnitude,
+            Direction::Forward => position.x += magnitude,
+        };
+    }
     return position;
 }
 
@@ -90,10 +100,29 @@ fn challenge_01_2() {
 
 fn challenge_02_1() {
     let list = get_input(include_str!("../inputs/02.txt"));
-    let mut position: Location = Location { x: 0, y: 0 };
+    let mut position: Location = Location {
+        aim: None,
+        x: 0,
+        y: 0,
+    };
     for command in list {
         position = submarine_navigate(position, command);
     }
     let result = position.x * position.y;
     println!("{}", result);
+}
+
+// Sorry Nerath. <3
+fn challenge_02_2() {
+    let list = get_input(include_str!("../inputs/02.txt"));
+    let mut position: Location = Location {
+        aim: Some(0),
+        x: 0,
+        y: 0,
+    };
+    for command in list {
+        position = submarine_navigate(position, command);
+    }
+    let result = position.x * position.y;
+    println!("{}", result)
 }
