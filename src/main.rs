@@ -26,7 +26,7 @@ enum Direction {
 }
 
 fn main() {
-    challenge_03_1();
+    challenge_03_2();
 }
 
 fn get_input(file: &str) -> Vec<&str> {
@@ -98,6 +98,27 @@ fn get_zero_counts(input: Vec<&str>) -> Vec<i32> {
         }
     }
     return zero_counts;
+}
+
+fn find_oxygen_generator_rating(input: Vec<&str>) -> i64 {
+    let mut rating: i64 = 0;
+    let mut bitwise_comparator = 2048;
+    let mut working_input = parse_vec_of_str_binary_as_vec_of_base_10_int(input);
+    for i in 0..12 {
+        let zero_counts = get_zero_counts(working_input); // ????? TFW can't into borrowing.
+        if zero_counts[i] > (working_input.len() / 2).try_into().unwrap() {
+            for number in working_input {
+                if number & bitwise_comparator == 1 {
+                    working_input.pop(number); // ?????
+                }
+            }
+        }
+        if working_input.len() == 1 {
+            return working_input[0]; // I'll move *your* value.
+        }
+        bitwise_comparator >>= 1;
+    }
+    return working_input[0];
 }
 
 fn challenge_01_1() {
@@ -188,6 +209,8 @@ fn challenge_03_1() {
 }
 
 fn challenge_03_2() {
-    // Next verse, same as the first.
-    unimplemented!()
+    unimplemented!(); // Screaming
+    let input = get_input(include_str!("../inputs/03.txt"));
+    let o2_rating = find_oxygen_generator_rating(input);
+    println!("{:?}", o2_rating)
 }
