@@ -6,6 +6,7 @@ use std::str::FromStr;
 use strum_macros::EnumString;
 
 type Coordinate = i64;
+type PositiveCounter = u64;
 
 #[derive(Clone, Copy)]
 struct Location {
@@ -25,7 +26,7 @@ enum Direction {
 }
 
 fn main() {
-    challenge_02_2();
+    challenge_03_1();
 }
 
 fn get_input(file: &str) -> Vec<&str> {
@@ -125,4 +126,44 @@ fn challenge_02_2() {
     }
     let result = position.x * position.y;
     println!("{}", result)
+}
+
+fn challenge_03_1() {
+    // Pretend I have the data as an easy to use thing here. We can backfill it later.
+    let input = get_input(include_str!("../inputs/03.txt"));
+    let mut gamma_rate = vec![0; 12];
+    let mut gamma_sum = 0;
+    let mut epsilon_rate = vec![0; 12];
+    let mut epsilon_sum = 0;
+    let mut zero_counts = vec![0; 12];
+    for line in input {
+        for (index, char) in line.trim().chars().enumerate() {
+            match char {
+                '0' => zero_counts[index] += 1,
+                '1' => (),
+                _ => panic!("Invalid char {}", char),
+            }
+        }
+    }
+    // println!("{:?}", zero_counts);
+    for index in 0..zero_counts.len() {
+        if zero_counts[index] < 500 {
+            gamma_rate[index] = 1;
+        } else {
+            epsilon_rate[index] = 1;
+        }
+    }
+    // I wonder if there's a better way to do this...
+    for i in 0..12 {
+        match gamma_rate[11 - i] {
+            0 => epsilon_sum += 2u32.pow(i as u32),
+            1 => gamma_sum += 2u32.pow(i as u32),
+            _ => panic!("WHAT.\n{}", gamma_rate[11 - i]),
+        }
+    }
+    let product = epsilon_sum * gamma_sum;
+    println!(
+        "Epsilon Sum: {}\nGamma Sum: {}\nProduct: {}",
+        epsilon_sum, gamma_sum, product
+    )
 }
