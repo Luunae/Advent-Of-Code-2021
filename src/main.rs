@@ -37,7 +37,16 @@ fn get_input(file: &str) -> Vec<&str> {
 fn convert_vec_of_str_to_vec_of_int(str_list: Vec<&str>) -> Vec<i64> {
     let mut int_list: Vec<i64> = Vec::new();
     for element in str_list {
-        int_list.push(element.trim().parse().expect("not a valid number"))
+        int_list.push(element.trim().parse().expect("not a valid number"));
+    }
+    println!("{:?}", int_list);
+    return int_list;
+}
+
+fn parse_vec_of_str_binary_as_vec_of_base_10_int(input: Vec<&str>) -> Vec<i64> {
+    let mut int_list: Vec<i64> = Vec::new();
+    for element in input {
+        int_list.push(i64::from_str_radix(element, 2).unwrap());
     }
     return int_list;
 }
@@ -69,6 +78,26 @@ fn submarine_navigate(mut position: Location, movement: &str) -> Location {
         };
     }
     return position;
+}
+
+fn get_zero_counts(input: Vec<&str>) -> Vec<i32> {
+    let mut zero_counts = vec![0; 12];
+    let int_input = parse_vec_of_str_binary_as_vec_of_base_10_int(input);
+    // "Trust AoC to come up with something fucky."
+    for number in &int_input {
+        let mut bitwise_comparator = 2048;
+        for i in 0..zero_counts.len() {
+            // The specific suggestion from Clippy(needless_range_loop) does some weird wrong shit. Intentionally ignoring.
+            // This is probably as a result of me doing things in a Pythonic way rather than a Rusty way.
+            if bitwise_comparator & number == 0 {
+                zero_counts[i] += 1
+            }
+            if bitwise_comparator > 1 {
+                bitwise_comparator >>= 1
+            }
+        }
+    }
+    return zero_counts;
 }
 
 fn challenge_01_1() {
@@ -129,22 +158,12 @@ fn challenge_02_2() {
 }
 
 fn challenge_03_1() {
-    // Pretend I have the data as an easy to use thing here. We can backfill it later.
     let input = get_input(include_str!("../inputs/03.txt"));
     let mut gamma_rate = vec![0; 12];
     let mut gamma_sum = 0;
     let mut epsilon_rate = vec![0; 12];
     let mut epsilon_sum = 0;
-    let mut zero_counts = vec![0; 12];
-    for line in input {
-        for (index, char) in line.trim().chars().enumerate() {
-            match char {
-                '0' => zero_counts[index] += 1,
-                '1' => (),
-                _ => panic!("Invalid char {}", char),
-            }
-        }
-    }
+    let zero_counts = get_zero_counts(input);
     // println!("{:?}", zero_counts);
     for index in 0..zero_counts.len() {
         if zero_counts[index] < 500 {
@@ -166,4 +185,9 @@ fn challenge_03_1() {
         "Epsilon Sum: {}\nGamma Sum: {}\nProduct: {}",
         epsilon_sum, gamma_sum, product
     )
+}
+
+fn challenge_03_2() {
+    // Next verse, same as the first.
+    unimplemented!()
 }
