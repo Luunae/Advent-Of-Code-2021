@@ -80,18 +80,13 @@ fn submarine_navigate(mut position: Location, movement: &str) -> Location {
 
 fn get_zero_counts(int_input: &[i64], number_of_bits: usize) -> Vec<i32> {
     let mut zero_counts = vec![0; number_of_bits];
-    // dbg!(&int_input);
-    //let int_input = parse_vec_of_str_binary_as_vec_of_base_10_int(&input);
     // "Trust AoC to come up with something fucky."
     for number in int_input {
         let mut bitwise_comparator = 2_i64.pow(number_of_bits as u32 - 1);
-        // dbg!(&number);
-        // dbg!(&bitwise_comparator);
-        for i in 0..number_of_bits {
-            // The specific suggestion from Clippy(needless_range_loop) does some weird wrong shit.
-            // This is probably as a result of me doing things in a Pythonic way rather than a Rusty way?
+        for item in &mut zero_counts.iter_mut() {
+            // Maybe one day this'll make sense.
             if bitwise_comparator & number != bitwise_comparator {
-                zero_counts[i] += 1
+                *item += 1;
             }
             if bitwise_comparator > 1 {
                 bitwise_comparator >>= 1
