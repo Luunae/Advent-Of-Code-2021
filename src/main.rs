@@ -39,14 +39,13 @@ fn convert_vec_of_str_to_vec_of_int(str_list: Vec<&str>) -> Vec<i64> {
     for element in str_list {
         int_list.push(element.trim().parse().expect("not a valid number"));
     }
-    println!("{:?}", int_list);
     return int_list;
 }
 
-fn parse_vec_of_str_binary_as_vec_of_base_10_int(input: Vec<&str>) -> Vec<i64> {
+fn parse_vec_of_str_binary_as_vec_of_base_10_int(input: &[&str]) -> Vec<i64> {
     let mut int_list: Vec<i64> = Vec::new();
     for element in input {
-        int_list.push(i64::from_str_radix(element, 2).unwrap());
+        int_list.push(i64::from_str_radix(element.trim(), 2).unwrap());
     }
     return int_list;
 }
@@ -59,7 +58,6 @@ fn submarine_navigate(mut position: Location, movement: &str) -> Location {
     let magnitude: u32 = magnitude.parse().expect("Should be a valid number");
     let magnitude = magnitude as Coordinate;
     let direction: Direction = Direction::from_str(direction).expect("Valid Direction?");
-
     if let Some(mut current_aim) = position.aim {
         match direction {
             Direction::Down => current_aim += magnitude,
@@ -80,43 +78,71 @@ fn submarine_navigate(mut position: Location, movement: &str) -> Location {
     return position;
 }
 
-fn get_zero_counts(input: Vec<&str>) -> Vec<i32> {
-    let mut zero_counts = vec![0; 12];
-    let int_input = parse_vec_of_str_binary_as_vec_of_base_10_int(input);
+fn get_zero_counts(int_input: &[i64], number_of_bits: usize) -> Vec<i32> {
+    let mut zero_counts = vec![0; number_of_bits];
+    // dbg!(&int_input);
+    //let int_input = parse_vec_of_str_binary_as_vec_of_base_10_int(&input);
     // "Trust AoC to come up with something fucky."
-    for number in &int_input {
-        let mut bitwise_comparator = 2048;
-        for i in 0..zero_counts.len() {
-            // The specific suggestion from Clippy(needless_range_loop) does some weird wrong shit. Intentionally ignoring.
-            // This is probably as a result of me doing things in a Pythonic way rather than a Rusty way.
-            if bitwise_comparator & number == 0 {
+    for number in int_input {
+        let mut bitwise_comparator = 2_i64.pow(number_of_bits as u32 - 1);
+        // dbg!(&number);
+        // dbg!(&bitwise_comparator);
+        for i in 0..number_of_bits {
+            // The specific suggestion from Clippy(needless_range_loop) does some weird wrong shit.
+            // This is probably as a result of me doing things in a Pythonic way rather than a Rusty way?
+            if bitwise_comparator & number != bitwise_comparator {
                 zero_counts[i] += 1
             }
             if bitwise_comparator > 1 {
                 bitwise_comparator >>= 1
             }
         }
+        // dbg!(&zero_counts);
     }
     return zero_counts;
 }
 
-fn find_oxygen_generator_rating(input: Vec<&str>) -> i64 {
-    let mut rating: i64 = 0;
-    let mut bitwise_comparator = 2048;
+fn find_oxygen_generator_rating(input: &[&str]) -> i64 {
+    // Fuuuuuck.
+    let number_of_bits = input[0].trim().len();
+    let mut bitwise_comparator = 2_i64.pow(number_of_bits as u32);
     let mut working_input = parse_vec_of_str_binary_as_vec_of_base_10_int(input);
-    for i in 0..12 {
-        let zero_counts = get_zero_counts(working_input); // ????? TFW can't into borrowing.
-        if zero_counts[i] > (working_input.len() / 2).try_into().unwrap() {
-            for number in working_input {
-                if number & bitwise_comparator == 1 {
-                    working_input.pop(number); // ?????
-                }
-            }
+    for i in 0..number_of_bits {
+        // Future me, make a list of all the variables you're going to need to touch before refactoring this into a function.
+        // Also make sure to properly design it out on pen and paper, you won't be able to hold it all in memory.
+        bitwise_comparator >>= 1;
+        let zero_counts = get_zero_counts(&working_input, number_of_bits);
+        let are_more_zeros_than_ones =
+            zero_counts[i] > (working_input.len() / 2).try_into().unwrap();
+        if are_more_zeros_than_ones {
+            working_input.retain(|number| number & bitwise_comparator != bitwise_comparator);
+        } else {
+            working_input.retain(|number| number & bitwise_comparator == bitwise_comparator);
         }
         if working_input.len() == 1 {
-            return working_input[0]; // I'll move *your* value.
+            return working_input[0];
         }
+    }
+    return working_input[0];
+}
+
+fn find_co2_scrubber_rating(input: &[&str]) -> i64 {
+    let number_of_bits = input[0].trim().len();
+    let mut bitwise_comparator = 2_i64.pow(number_of_bits as u32);
+    let mut working_input = parse_vec_of_str_binary_as_vec_of_base_10_int(input);
+    for i in 0..number_of_bits {
         bitwise_comparator >>= 1;
+        let zero_counts = get_zero_counts(&working_input, number_of_bits);
+        let are_more_zeros_than_ones =
+            zero_counts[i] > (working_input.len() / 2).try_into().unwrap();
+        if are_more_zeros_than_ones {
+            working_input.retain(|number| number & bitwise_comparator == bitwise_comparator);
+        } else {
+            working_input.retain(|number| number & bitwise_comparator != bitwise_comparator);
+        }
+        if working_input.len() == 1 {
+            return working_input[0];
+        }
     }
     return working_input[0];
 }
@@ -184,7 +210,9 @@ fn challenge_03_1() {
     let mut gamma_sum = 0;
     let mut epsilon_rate = vec![0; 12];
     let mut epsilon_sum = 0;
-    let zero_counts = get_zero_counts(input);
+    let int_inputs = parse_vec_of_str_binary_as_vec_of_base_10_int(&input);
+    let number_of_bits = input[0].trim().len();
+    let zero_counts = get_zero_counts(&int_inputs, number_of_bits);
     // println!("{:?}", zero_counts);
     for index in 0..zero_counts.len() {
         if zero_counts[index] < 500 {
@@ -209,8 +237,11 @@ fn challenge_03_1() {
 }
 
 fn challenge_03_2() {
-    unimplemented!(); // Screaming
+    // unimplemented!(); // Screaming
     let input = get_input(include_str!("../inputs/03.txt"));
-    let o2_rating = find_oxygen_generator_rating(input);
-    println!("{:?}", o2_rating)
+    let o2_rating = find_oxygen_generator_rating(&input);
+    let co2_scrubber_rating = find_co2_scrubber_rating(&input);
+    println!("o2: {:?}\nco2: {:?}", o2_rating, co2_scrubber_rating);
+    let life_support_rating = o2_rating * co2_scrubber_rating;
+    println!("LSR: {:?}", life_support_rating)
 }
