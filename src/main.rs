@@ -232,11 +232,28 @@ fn challenge_03_1() {
 }
 
 fn challenge_03_2() {
-    // unimplemented!(); // Screaming
     let input = get_input(include_str!("../inputs/03.txt"));
     let o2_rating = find_oxygen_generator_rating(&input);
     let co2_scrubber_rating = find_co2_scrubber_rating(&input);
     println!("o2: {:?}\nco2: {:?}", o2_rating, co2_scrubber_rating);
     let life_support_rating = o2_rating * co2_scrubber_rating;
     println!("LSR: {:?}", life_support_rating)
+}
+
+fn challenge_04_1() {
+    // Get input.
+    let input = get_input(include_str!("../inputs/04.txt"));
+    // Split out draws.
+    let draws: &str = input[0];
+    // Build Prime Boards. *
+    // Build Shadow Boards. (Bitwise 25-bit reference?) *
+
+    // Define bitwise bingo positions.
+    // For each Drawn number:
+    // // For each Prime Board:
+    // // // If num on board, mark its Shadow. * If Shadow matches any bingo pattern, call bingo.
+    // For each position on Shadow Board:
+    // // If False/0/bitwise-comparator-not-equal:
+    // // // Add value of position on Prime Board to Sum.
+    // Multiply Sum by 24.
 }
